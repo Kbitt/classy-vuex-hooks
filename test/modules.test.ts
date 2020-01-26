@@ -60,4 +60,48 @@ describe('test module hooks', () => {
         expect(store.state.filter).toBe(INPUT)
         expect(store.state.wasCalled).toBe(true)
     })
+
+    it('test namespace toggling', async () => {
+        const wrapper = shallowMount(MappedModules, { localVue })
+        const input = wrapper.find('#ns_toggle')
+        const count = wrapper.find('#count')
+        const btn = wrapper.find('#inc')
+
+        const switchNamespace = async () => {
+            const ch = input.element as HTMLInputElement
+            ch.checked = !ch.checked
+            console.log(`switch namespace => ${ch.checked}`)
+            input.trigger('input')
+            await localVue.nextTick()
+        }
+
+        const checkCount = (value: any) =>
+            expect((count.element as HTMLInputElement).value).toBe('' + value)
+
+        const inc = async () => {
+            btn.trigger('click')
+            await localVue.nextTick()
+        }
+
+        // check initial count
+        checkCount(0)
+
+        // increment count and check count
+        await inc()
+        checkCount(1)
+
+        // switch namespace
+        await switchNamespace()
+        checkCount(0)
+
+        // increment a couple times on the other namespace
+        await inc()
+        await inc()
+        checkCount(2)
+
+        await switchNamespace()
+        checkCount(1)
+        await inc()
+        checkCount(2)
+    })
 })

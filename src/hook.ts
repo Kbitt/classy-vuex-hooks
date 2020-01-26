@@ -3,7 +3,6 @@ import {
     getStates,
     getGetterKeys,
     getMutations,
-    getGetSets,
     getActionKeys,
     getGetSetKeys,
     getModelKeys,
