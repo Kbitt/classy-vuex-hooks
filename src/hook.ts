@@ -1,42 +1,48 @@
 import {
-    getModuleAs,
+    getModule,
     getStates,
     getGetterKeys,
-    getActions,
     getMutations,
     getGetSets,
+    getActionKeys,
+    getGetSetKeys,
+    getModelKeys,
 } from 'classy-vuex'
 import { Ref, computed, ref } from '@vue/composition-api'
-import { useStore } from './store'
 
 const normalizeNamespace = (
     namespaceRef: string | Ref<string | undefined> | undefined = ref(undefined)
 ) => (typeof namespaceRef === 'string' ? namespaceRef : namespaceRef.value)
 
+/** Hook to access the given module. If a namespace ref is supplied, the module will reactively change namespaces when the ref updates */
 export const useModule = <T>(
     ctor: { new (...args: any[]): T },
-    namespaceRef: string | Ref<string | undefined> | undefined = ref(undefined)
-): Ref<T> => {
-    return computed(() => {
+    namespaceRef?: string | Ref<string | undefined>
+): Ref<T> =>
+    computed(() => {
         const namespace = normalizeNamespace(namespaceRef)
-        const store = useStore()
-        return getModuleAs(ctor, store, namespace)
+        return getModule(ctor, namespace)
     })
-}
 
+const getGetKeys = (target: any) =>
+    getStates(target).concat(getGetterKeys(target))
+
+const getPropKeys = (target: any) =>
+    getGetSetKeys(target).concat(getModelKeys(target))
+
+const getFuncKeys = (target: any) =>
+    getActionKeys(target).concat(getMutations(target))
+
+/** Create a map of refs from the given module. If a namespace ref is supplied, the namespace will reactively change when the ref updates  */
 export const useMappedModule = <T extends Record<string, any>>(
     ctor: { new (...args: any[]): T },
-    namespaceRef: string | Ref<string | undefined> | undefined = ref(undefined)
+    namespaceRef?: string | Ref<string | undefined>
 ): Record<keyof T, Function | Ref<any>> => {
     const result: Record<string, Function | Ref<any>> = {}
 
-    const refKeys = [getStates, getGetterKeys]
-        .map(fn => [...fn(ctor.prototype)])
-        .reduce((a, b) => [...a, ...b])
-
     const cm = () => useModule(ctor, namespaceRef).value as T
 
-    refKeys.forEach(
+    getGetKeys(ctor.prototype).forEach(
         key =>
             (result[key] = computed(() => {
                 const fn = cm()[key as keyof T]
@@ -44,19 +50,15 @@ export const useMappedModule = <T extends Record<string, any>>(
             }))
     )
 
-    getGetSets(ctor.prototype).forEach(
-        gs =>
-            (result[gs.key] = computed({
-                get: () => cm()[gs.key as keyof T],
-                set: value => (cm()[gs.key as keyof T] = value),
+    getPropKeys(ctor.prototype).forEach(
+        key =>
+            (result[key] = computed({
+                get: () => cm()[key as keyof T],
+                set: value => (cm()[key as keyof T] = value),
             }))
     )
 
-    const fnKeys = [getActions, getMutations]
-        .map(fn => [...fn(ctor.prototype)])
-        .reduce((a, b) => [...a, ...b])
-
-    fnKeys.forEach(
+    getFuncKeys(ctor.prototype).forEach(
         key => (result[key] = (...args: any[]) => cm()[key as keyof T](...args))
     )
 

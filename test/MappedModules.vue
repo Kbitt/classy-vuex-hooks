@@ -1,12 +1,8 @@
 <template>
     <div>
-        <input
-            id="input1"
-            type="text"
-            :value="value"
-            @input="e => setValue(e.target.value)"
-        />
+        <input id="input1" type="text" :value="value" @input="e => setValue(e.target.value)" />
         <input id="input2" type="text" v-model="astr" />
+        <input id="input3" type="text" v-model="filter" />
     </div>
 </template>
 <script lang="ts">

@@ -3,7 +3,7 @@
  */
 const path = require('path')
 const r = p => path.resolve(__dirname, p)
-const { CleanWebpackPlugin } = require('clean-webpack-plugin');
+const { CleanWebpackPlugin } = require('clean-webpack-plugin')
 
 /**
  * @type { Configuration }
@@ -13,25 +13,26 @@ module.exports = {
     entry: r('src/index.ts'),
     output: {
         libraryTarget: 'commonjs',
-        filename: 'index.js'
+        filename: 'index.js',
     },
     resolve: {
-        extensions: ['.ts']
+        extensions: ['.ts'],
     },
     externals: {
-        vuex: 'vuex'
+        '@vue/composition-api': '@vue/composition-api',
+        'classy-vuex': 'classy-vuex',
     },
     module: {
         rules: [
             {
                 test: /\.ts$/,
-                use: 'babel-loader'
-            }
-        ]
+                use: 'babel-loader',
+            },
+        ],
     },
     plugins: [
         new CleanWebpackPlugin({
-            cleanOnceBeforeBuildPatterns: ['**/*', '!*.d.ts']
-        })
-    ]
+            cleanOnceBeforeBuildPatterns: ['**/*', '!*.d.ts'],
+        }),
+    ],
 }
