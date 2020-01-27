@@ -28,7 +28,6 @@ export default createComponent({
         const m = useMappedModule(Foo)
         const ns = computed(() => {
             const ns = (m.on1 as Ref<boolean>).value ? 'sub1' : 'sub2'
-            console.log('calculated ns as: ' + ns)
             return ns
         })
         const sub = useMappedModule(SubModule, ns)

@@ -7,8 +7,8 @@ export interface SubState {
 }
 
 export class SubModule implements SubState {
-    @state(0)
-    count!: number
+    @state
+    count = 0
 
     @mutation
     inc() {
@@ -25,25 +25,25 @@ export interface FooState {
 }
 
 export class Foo implements FooState {
-    @state('')
-    value!: string
+    @state
+    value = ''
 
-    @getset(true)
-    on1!: boolean
+    @getset()
+    on1 = true
 
     @mutation
     setValue(value: string) {
         this.value = value
     }
 
-    @getset('astr')
-    astr!: string
+    @getset()
+    astr = 'astr'
 
-    @getset(false)
-    wasCalled!: boolean
+    @getset()
+    wasCalled = false
 
-    @model('', 'fooAction')
-    filter!: string
+    @model('fooAction')
+    filter = ''
 
     @action()
     fooAction() {

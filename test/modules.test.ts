@@ -70,7 +70,6 @@ describe('test module hooks', () => {
         const switchNamespace = async () => {
             const ch = input.element as HTMLInputElement
             ch.checked = !ch.checked
-            console.log(`switch namespace => ${ch.checked}`)
             input.trigger('input')
             await localVue.nextTick()
         }

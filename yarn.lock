@@ -1943,10 +1943,10 @@ class-utils@^0.3.5:
     isobject "^3.0.0"
     static-extend "^0.1.1"
 
-classy-vuex@^1.2.0:
-  version "1.2.0"
-  resolved "https://registry.yarnpkg.com/classy-vuex/-/classy-vuex-1.2.0.tgz#78aa755337497c949c1b8e429478f6abbb812e4e"
-  integrity sha512-iwsV8hKcAYsDqcRpG0N/DJf7A1IJKb30zzmTztl+Hay+ACku+3IWCDtDIPQJqALGcEK48YvSAaVSvVf4Zu2qgw==
+classy-vuex@^1.3.1:
+  version "1.3.1"
+  resolved "https://registry.yarnpkg.com/classy-vuex/-/classy-vuex-1.3.1.tgz#6eeba17d26e579e107476e3d4455cc4b60453429"
+  integrity sha512-0ifNGNw8FJk8G0aQRUERGJFcmZF9M+aLZWchE+Z7c1t7dDhAcY9adw1mAOzSoFXVa13qVFGO4DYSqQ2XmOmgPw==
 
 clean-webpack-plugin@^3.0.0:
   version "3.0.0"
