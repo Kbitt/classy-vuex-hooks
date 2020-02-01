@@ -29,6 +29,11 @@ const getGetKeys = (target: any) =>
 const getPropKeys = (target: any) =>
     getGetSetKeys(target).concat(getModelKeys(target))
 
+const getAllStateKeys = (target: any) =>
+    getStates(target)
+        .concat(getGetSetKeys(target))
+        .concat(getModelKeys(target))
+
 const getFuncKeys = (target: any) =>
     getActionKeys(target).concat(getMutations(target))
 
@@ -62,4 +67,18 @@ export const useMappedModule = <T extends Record<string, any>>(
     )
 
     return result as Record<keyof T, Ref<any> | Function>
+}
+
+export const useState = <T, TState = any>(
+    ctor: { new (...args: any[]): T },
+    namespaceRef?: string | Ref<string | undefined>
+): Record<keyof TState, Ref<any>> => {
+    const result = {} as Record<keyof TState, Ref<any>>
+    const cm = () => useModule(ctor, namespaceRef).value as T
+
+    getAllStateKeys(ctor.prototype).forEach(key => {
+        result[key as keyof TState] = computed(() => cm()[key as keyof T])
+    })
+
+    return result
 }

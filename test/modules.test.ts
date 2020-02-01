@@ -1,9 +1,10 @@
-import { localVue } from './_init'
+import { getLocalVue } from './_init'
 import { Store } from 'vuex'
 import { shallowMount } from '@vue/test-utils'
 import Modules from './Modules.vue'
 import MappedModules from './MappedModules.vue'
 import { FooState, getStore } from './modules.store'
+import { VueConstructor } from 'vue/types/umd'
 
 const INPUT = 'input'
 const INPUT1_ID = '#input1'
@@ -11,8 +12,10 @@ const INPUT2_ID = '#input2'
 const INPUT3_ID = '#input3'
 
 describe('test module hooks', () => {
+    let localVue: VueConstructor<Vue>
     let store: Store<FooState>
     beforeEach(() => {
+        localVue = getLocalVue()
         store = getStore()
     })
     it('test mutation', () => {

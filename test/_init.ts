@@ -4,11 +4,12 @@ import ClassyVuexHooks from '../src'
 import CompositionApi from '@vue/composition-api'
 import { createLocalVue } from '@vue/test-utils'
 
-const localVue = createLocalVue()
+export const getLocalVue = () => {
+    const localVue = createLocalVue()
 
-localVue.use(Vuex)
-localVue.use(CompositionApi)
+    localVue.use(Vuex)
+    localVue.use(CompositionApi)
 
-localVue.use(ClassyVuexHooks)
-
-export { localVue }
+    localVue.use(ClassyVuexHooks)
+    return localVue
+}
