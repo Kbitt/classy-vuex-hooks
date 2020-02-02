@@ -6,6 +6,8 @@ import {
     getActionKeys,
     getGetSetKeys,
     getModelKeys,
+    getGetSets,
+    getModels,
 } from 'classy-vuex'
 import { Ref, computed, ref } from '@vue/composition-api'
 
@@ -33,6 +35,11 @@ const getAllStateKeys = (target: any) =>
     getStates(target)
         .concat(getGetSetKeys(target))
         .concat(getModelKeys(target))
+
+const getAllMutationKeys = (target: any) =>
+    getMutations(target)
+        .concat(getGetSets(target).map(gs => gs.mutationName))
+        .concat(getModels(target).map(m => m.mutationName))
 
 const getFuncKeys = (target: any) =>
     getActionKeys(target).concat(getMutations(target))
@@ -69,16 +76,32 @@ export const useMappedModule = <T extends Record<string, any>>(
     return result as Record<keyof T, Ref<any> | Function>
 }
 
-export const useState = <T, TState = any>(
-    ctor: { new (...args: any[]): T },
+export type StateRefDictionary<T> = {
+    [P in keyof T]: Ref<T[P]>
+}
+
+export const useState = <TState extends Record<string, any> = any>(
+    ctor: { new (...args: any[]): any },
     namespaceRef?: string | Ref<string | undefined>
-): Record<keyof TState, Ref<any>> => {
-    const result = {} as Record<keyof TState, Ref<any>>
-    const cm = () => useModule(ctor, namespaceRef).value as T
+): StateRefDictionary<TState> => {
+    const result = {} as Record<string, any>
+    const modRef = useModule(ctor, namespaceRef) as Ref<any>
 
-    getAllStateKeys(ctor.prototype).forEach(key => {
-        result[key as keyof TState] = computed(() => cm()[key as keyof T])
+    getAllStateKeys(ctor.prototype).forEach(
+        key => (result[key] = computed<any>(() => modRef.value[key]))
+    )
+
+    return result as StateRefDictionary<TState>
+}
+
+export const useMutations = <TMutations extends {} = any>(
+    ctor: { new (...args: any[]): {} },
+    namespaceRef?: string | Ref<string | undefined>
+): TMutations => {
+    const result = {} as Record<string, Function>
+    const mod = useModule(ctor, namespaceRef) as Ref<any>
+    getAllMutationKeys(ctor.prototype).forEach(key => {
+        result[key] = (...args: any) => mod.value[key](...args)
     })
-
-    return result
+    return result as TMutations
 }

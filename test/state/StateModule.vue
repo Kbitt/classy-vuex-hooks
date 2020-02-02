@@ -12,9 +12,7 @@ import { useState } from '../../src'
 import { StateTestModule, StateTestState } from './state.store'
 export default createComponent({
     setup: () => {
-        const states = useState<StateTestModule, StateTestState>(
-            StateTestModule
-        )
+        const states = useState<StateTestState>(StateTestModule)
         return {
             ...states,
             length: Object.keys(states).length,
