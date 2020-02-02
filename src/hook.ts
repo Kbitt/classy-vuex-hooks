@@ -41,6 +41,9 @@ const getAllMutationKeys = (target: any) =>
         .concat(getGetSets(target).map(gs => gs.mutationName))
         .concat(getModels(target).map(m => m.mutationName))
 
+const getAllActionKeys = (target: any) =>
+    getActionKeys(target).concat(getModels(target).map(m => m.actionName))
+
 const getFuncKeys = (target: any) =>
     getActionKeys(target).concat(getMutations(target))
 
@@ -94,14 +97,32 @@ export const useState = <TState extends Record<string, any> = any>(
     return result as StateRefDictionary<TState>
 }
 
+const createFnCollection = (
+    getKeys: (target: any) => string[],
+    ctor: { new (...args: any[]): {} },
+    namespaceRef?: string | Ref<string | undefined>
+) => {
+    const result = {} as Record<string, Function>
+    const mod = useModule(ctor, namespaceRef) as Ref<any>
+    getKeys(ctor.prototype).forEach(key => {
+        result[key] = (...args: any) => mod.value[key](...args)
+    })
+    return result
+}
 export const useMutations = <TMutations extends {} = any>(
     ctor: { new (...args: any[]): {} },
     namespaceRef?: string | Ref<string | undefined>
 ): TMutations => {
-    const result = {} as Record<string, Function>
-    const mod = useModule(ctor, namespaceRef) as Ref<any>
-    getAllMutationKeys(ctor.prototype).forEach(key => {
-        result[key] = (...args: any) => mod.value[key](...args)
-    })
-    return result as TMutations
+    return createFnCollection(
+        getAllMutationKeys,
+        ctor,
+        namespaceRef
+    ) as TMutations
+}
+
+export const useActions = <TActions extends {} = any>(
+    ctor: { new (...args: any[]): {} },
+    namespaceRef?: string | Ref<string | undefined>
+): TActions => {
+    return createFnCollection(getAllActionKeys, ctor, namespaceRef) as TActions
 }
