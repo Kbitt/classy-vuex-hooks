@@ -8,6 +8,7 @@ import {
     getModelKeys,
     getGetSets,
     getModels,
+    getGetters,
 } from 'classy-vuex'
 import { Ref, computed, ref } from '@vue/composition-api'
 
@@ -83,6 +84,12 @@ export type StateRefDictionary<T> = {
     [P in keyof T]: Ref<T[P]>
 }
 
+export type GetterRefDictionary<T> = {
+    [P in keyof T]: T[P] extends (...args: any) => any
+        ? Ref<ReturnType<T[P]>>
+        : Ref<T[P]>
+}
+
 export const useState = <TState extends Record<string, any> = any>(
     ctor: { new (...args: any[]): any },
     namespaceRef?: string | Ref<string | undefined>
@@ -95,6 +102,21 @@ export const useState = <TState extends Record<string, any> = any>(
     )
 
     return result as StateRefDictionary<TState>
+}
+
+export const useGetters = <TGetters extends Record<string, any> = any>(
+    ctor: { new (...args: any[]): any },
+    namespaceRef?: string | Ref<string | undefined>
+): GetterRefDictionary<TGetters> => {
+    const result = {} as Record<string, any>
+    const modRef = useModule(ctor, namespaceRef) as Ref<any>
+    getGetters(ctor.prototype).forEach(gt => {
+        result[gt.name] = computed(() =>
+            gt.isGetter ? modRef.value[gt.name] : modRef.value[gt.name]()
+        )
+    })
+
+    return result as GetterRefDictionary<TGetters>
 }
 
 const createFnCollection = (

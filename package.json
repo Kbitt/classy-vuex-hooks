@@ -1,6 +1,6 @@
 {
     "name": "classy-vuex-hooks",
-    "version": "1.0.3",
+    "version": "1.1.0",
     "main": "dist/index.js",
     "license": "MIT",
     "files": [
@@ -40,6 +40,7 @@
         "build-declarations": "tsc --emitDeclarationOnly",
         "build-all": "yarn build && yarn build-declarations",
         "build-all-prod": "yarn build-prod && yarn build-declarations",
+        "prepublish": "yarn build-all-prod",
         "test": "jest"
     }
 }

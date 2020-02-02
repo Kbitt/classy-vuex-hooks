@@ -1,9 +1,5 @@
 import { getLocalVue } from '../_init'
-import {
-    ActionTestActions,
-    ActionTestState,
-    ActionTestModule,
-} from './actions.store'
+import { ActionTestState, ActionTestModule } from './actions.store'
 import ActionModule from './ActionModule.vue'
 import { Store } from 'vuex'
 import { createStore } from '../../src'
