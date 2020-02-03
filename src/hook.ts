@@ -9,6 +9,8 @@ import {
     getGetSets,
     getModels,
     getGetters,
+    getVirtuals,
+    getVirtualKeys,
 } from 'classy-vuex'
 import { Ref, computed, ref } from '@vue/composition-api'
 
@@ -30,7 +32,9 @@ const getGetKeys = (target: any) =>
     getStates(target).concat(getGetterKeys(target))
 
 const getPropKeys = (target: any) =>
-    getGetSetKeys(target).concat(getModelKeys(target))
+    getGetSetKeys(target)
+        .concat(getModelKeys(target))
+        .concat(getVirtualKeys(target))
 
 const getAllStateKeys = (target: any) =>
     getStates(target)

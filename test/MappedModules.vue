@@ -16,6 +16,7 @@
             @input="e => (on1 = e.target.checked)"
         />
         <input id="count" :value="count" type="number" />
+        <input id="virtual" v-model="virt" type="text" />
         <button id="inc" @click="inc">inc</button>
     </div>
 </template>

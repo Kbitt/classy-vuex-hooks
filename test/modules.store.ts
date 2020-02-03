@@ -1,5 +1,5 @@
 import { Store } from 'vuex'
-import { state, createStore, mutation, getset } from 'classy-vuex'
+import { state, createStore, mutation, getset, virtual } from 'classy-vuex'
 import { action, model } from '../src'
 
 export interface SubState {
@@ -25,6 +25,8 @@ export interface FooState {
 }
 
 export class Foo implements FooState {
+    @virtual('value', 'setValue')
+    virt!: string
     @state
     value = ''
 

@@ -45,6 +45,18 @@ describe('test module hooks', () => {
         expect(store.state.value).toBe(INPUT)
     })
 
+    it('test virtual w/ mapped module', async () => {
+        const wrapper = shallowMount(MappedModules, { localVue })
+        const input = wrapper.find('#virtual')
+        const inputEl = input.element as HTMLInputElement
+        expect(inputEl.value).toBe('')
+        const TEST = 'TEST_VALUE'
+        inputEl.value = TEST
+        input.trigger('input')
+        await localVue.nextTick()
+        expect(store.state.value).toBe(TEST)
+    })
+
     it('test getset w/ mapped module', () => {
         const wrapper = shallowMount(MappedModules, { localVue })
         const input = wrapper.find(INPUT2_ID)
