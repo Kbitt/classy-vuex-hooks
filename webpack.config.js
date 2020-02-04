@@ -10,6 +10,7 @@ const { CleanWebpackPlugin } = require('clean-webpack-plugin')
  */
 module.exports = {
     mode: process.env.NODE_ENV === 'production' ? 'production' : 'development',
+    devtool: process.env.NODE_ENV === 'production' ? false : 'source-map',
     entry: r('src/index.ts'),
     output: {
         libraryTarget: 'commonjs',
