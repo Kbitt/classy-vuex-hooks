@@ -9,22 +9,81 @@ import {
     getGetSets,
     getModels,
     getGetters,
-    getVirtuals,
     getVirtualKeys,
+    isRegistered,
+    registerModule,
+    unregisterModule,
+    mergeModule,
+    getStore,
 } from 'classy-vuex'
-import { Ref, computed, ref } from '@vue/composition-api'
+
+import {
+    Ref,
+    computed,
+    ref,
+    onBeforeMount,
+    onUnmounted,
+    onMounted,
+} from '@vue/composition-api'
 
 const normalizeNamespace = (
     namespaceRef: string | Ref<string | undefined> | undefined = ref(undefined)
 ) => (typeof namespaceRef === 'string' ? namespaceRef : namespaceRef.value)
 
-/** Hook to access the given module. If a namespace ref is supplied, the module will reactively change namespaces when the ref updates */
+export type ModuleFactoryDisposeOptions = {
+    /** delay time to destroy in milliseconds (default: 10000) */
+    delay?: number
+}
+
+export type ModuleFactoryOptions<T> = {
+    factory: (namespace: string) => T
+    dispose?: boolean | ModuleFactoryDisposeOptions
+}
+
+const USES = Symbol('USES')
+
+type DynamicUseState = {
+    [USES]: number
+}
+
+const INCREMENT = '__CVH_INCREMENT'
+const DECREMENT = '__CVH_DECREMENT'
+
+const DELAY_DEFAULT = 10000
+
+const getDynamicUseModule = (): import('vuex').Module<
+    DynamicUseState,
+    any
+> => ({
+    state: () => ({
+        [USES]: 0,
+    }),
+    mutations: {
+        [INCREMENT]: state => state[USES]++,
+        [DECREMENT]: state => state[USES]--,
+    },
+})
+
+/** Hook to access the given module.
+ * If a namespace ref is supplied, the module will reactively change namespaces when the ref updates
+ * A factory function to create a module can be supplied to dynamically register the module if it is requested before it is registerd
+ * */
 export const useModule = <T>(
     ctor: { new (...args: any[]): T },
-    namespaceRef?: string | Ref<string | undefined>
+    namespaceRef?: string | Ref<string | undefined>,
+    factory?: (namespace: string) => T
 ): Ref<T> =>
     computed(() => {
         const namespace = normalizeNamespace(namespaceRef)
+        if (
+            factory &&
+            namespace &&
+            namespaceRef !== undefined &&
+            'value' in (namespaceRef as any) &&
+            !isRegistered(namespace)
+        ) {
+            registerModule(namespace.split('/'), factory(namespace))
+        }
         return getModule(ctor, namespace)
     })
 
@@ -52,14 +111,21 @@ const getAllActionKeys = (target: any) =>
 const getFuncKeys = (target: any) =>
     getActionKeys(target).concat(getMutations(target))
 
-/** Create a map of refs from the given module. If a namespace ref is supplied, the namespace will reactively change when the ref updates  */
+/** Create a map of refs from the given module.
+ * If a namespace ref is supplied, the namespace will reactively change when the ref updates.
+ * If the modules targeted by a namespace ref are dynamic and created dynamically when a namespace prop/ref is updated,
+ * Then it is very likely that the generated computed properties will attempt to access the namespace before the dynamic module can be registered.
+ * To accomodate this, an optional factory function, which is passed the desired namespace, can be supplied and will be used to dynamically register the module
+ * Before trying to access it
+ * */
 export const useMappedModule = <T extends Record<string, any>>(
     ctor: { new (...args: any[]): T },
-    namespaceRef?: string | Ref<string | undefined>
+    namespaceRef?: string | Ref<string | undefined>,
+    factory?: (namespace: string) => T
 ): Record<keyof T, Function | Ref<any>> => {
     const result: Record<string, Function | Ref<any>> = {}
 
-    const cm = () => useModule(ctor, namespaceRef).value as T
+    const cm = () => useModule(ctor, namespaceRef, factory).value as T
 
     getGetKeys(ctor.prototype).forEach(
         key =>
@@ -72,7 +138,10 @@ export const useMappedModule = <T extends Record<string, any>>(
     getPropKeys(ctor.prototype).forEach(
         key =>
             (result[key] = computed({
-                get: () => cm()[key as keyof T],
+                get: () => {
+                    const result = cm()[key as keyof T]
+                    return result
+                },
                 set: value => (cm()[key as keyof T] = value),
             }))
     )
@@ -152,3 +221,5 @@ export const useActions = <TActions extends {} = any>(
 ): TActions => {
     return createFnCollection(getAllActionKeys, ctor, namespaceRef) as TActions
 }
+
+export const useStore: () => import('vuex').Store<any> = getStore

@@ -10,4 +10,9 @@ module.exports = {
         // process `*.vue` files with `vue-jest`
         '.*\\.(vue)$': 'vue-jest',
     },
+    globals: {
+        'ts-jest': {
+            babelConfig: true,
+        },
+    },
 }
