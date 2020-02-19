@@ -1,5 +1,12 @@
 import { Store } from 'vuex'
-import { state, createStore, mutation, getset, virtual } from 'classy-vuex'
+import {
+    state,
+    createStore,
+    mutation,
+    getset,
+    virtual,
+    getter,
+} from 'classy-vuex'
 import { action, model } from '../src'
 
 export interface SubState {
@@ -13,6 +20,16 @@ export class SubModule implements SubState {
     @mutation
     inc() {
         this.count++
+    }
+
+    @getter
+    get next() {
+        return this.count + 1
+    }
+
+    @getter
+    get isOdd() {
+        return (n: number) => n % 2 !== 0
     }
 }
 

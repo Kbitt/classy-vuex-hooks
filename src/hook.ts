@@ -111,6 +111,29 @@ const getAllActionKeys = (target: any) =>
 const getFuncKeys = (target: any) =>
     getActionKeys(target).concat(getMutations(target))
 
+type IfEquals<X, Y, A = X, B = never> = (<T>() => T extends X ? 1 : 2) extends <
+    T
+>() => T extends Y ? 1 : 2
+    ? A
+    : B
+
+type ReadonlyKeys<T> = {
+    [P in keyof T]-?: IfEquals<
+        { [Q in P]: T[P] },
+        { -readonly [Q in P]: T[P] },
+        never,
+        P
+    >
+}[keyof T]
+
+export type MappedModule<T> = {
+    [P in keyof T]: T[P] extends Function
+        ? T[P]
+        : P extends ReadonlyKeys<T>
+        ? Readonly<Ref<Readonly<T[P]>>>
+        : Ref<T[P]>
+}
+
 /** Create a map of refs from the given module.
  * If a namespace ref is supplied, the namespace will reactively change when the ref updates.
  * If the modules targeted by a namespace ref are dynamic and created dynamically when a namespace prop/ref is updated,
@@ -122,7 +145,7 @@ export const useMappedModule = <T extends Record<string, any>>(
     ctor: { new (...args: any[]): T },
     namespaceRef?: string | Ref<string | undefined>,
     factory?: (namespace: string) => T
-): Record<keyof T, Function | Ref<any>> => {
+): MappedModule<T> => {
     const result: Record<string, Function | Ref<any>> = {}
 
     const cm = () => useModule(ctor, namespaceRef, factory).value as T
@@ -150,7 +173,7 @@ export const useMappedModule = <T extends Record<string, any>>(
         key => (result[key] = (...args: any[]) => cm()[key as keyof T](...args))
     )
 
-    return result as Record<keyof T, Ref<any> | Function>
+    return result as MappedModule<T>
 }
 
 export type StateRefDictionary<T> = {
