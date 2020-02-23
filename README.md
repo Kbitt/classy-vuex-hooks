@@ -18,4 +18,4 @@ This function can be used like the `mapComputed` and `mapMethods` functions of `
 
 ## Dynamic Modules
 
-Both hooks can be used to dynamically register a module on demand. By supplying a factory function as a third argument, the module will be created if it does not already exist at the given namespace.
+Both hooks can be used to dynamically register a module on demand. By supplying a factory function as a third argument, the module will be created if it does not already exist at the given namespace. Passing the factory as an options object along with a dispose configuration (`{ delay?: number }`), will cause usage of the module to be tracked, and when all components using the module (through the hook functions) have been unmounted, the module will be unregistered.
