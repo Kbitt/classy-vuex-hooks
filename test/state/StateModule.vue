@@ -7,10 +7,10 @@
     </div>
 </template>
 <script lang="ts">
-import { createComponent, computed, Ref } from '@vue/composition-api'
+import { defineComponent, computed, Ref } from '@vue/composition-api'
 import { useState } from '../../src'
 import { StateTestModule, StateTestState } from './state.store'
-export default createComponent({
+export default defineComponent({
     setup: () => {
         const states = useState<StateTestState>(StateTestModule)
         return {

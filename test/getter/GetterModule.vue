@@ -6,9 +6,9 @@
 </template>
 <script lang="ts">
 import { GetterTestModule, GetterTestGetters } from './getters.store'
-import { createComponent } from '@vue/composition-api'
+import { defineComponent } from '@vue/composition-api'
 import { useGetters } from '../../src'
-export default createComponent({
+export default defineComponent({
     setup: () => {
         const getters = useGetters<GetterTestGetters>(GetterTestModule)
 

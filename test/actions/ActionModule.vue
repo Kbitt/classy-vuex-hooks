@@ -4,14 +4,14 @@
     </div>
 </template>
 <script lang="ts">
-import { createComponent } from '@vue/composition-api'
+import { defineComponent } from '@vue/composition-api'
 import {
     ActionTestActions,
     ActionTestState,
     ActionTestModule,
 } from './actions.store'
 import { useActions } from '../../src'
-export default createComponent({
+export default defineComponent({
     setup: () => {
         const actions = useActions<ActionTestActions>(ActionTestModule)
         return {

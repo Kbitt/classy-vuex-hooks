@@ -17,14 +17,7 @@ import {
     getStore,
 } from 'classy-vuex'
 
-import {
-    Ref,
-    computed,
-    ref,
-    onBeforeMount,
-    onUnmounted,
-    onMounted,
-} from '@vue/composition-api'
+import { Ref, computed, ref, onUnmounted } from '@vue/composition-api'
 
 const normalizeNamespace = (
     namespaceRef: string | Ref<string | undefined> | undefined = ref(undefined)
@@ -35,10 +28,14 @@ export type ModuleFactoryDisposeOptions = {
     delay?: number
 }
 
-export type ModuleFactoryOptions<T> = {
-    factory: (namespace: string) => T
+export type FactoryFn<T> = (namespace: string) => T
+
+export type DisposableFactoryOptions<T> = {
+    factory: FactoryFn<T>
     dispose?: boolean | ModuleFactoryDisposeOptions
 }
+
+export type ModuleFactoryOptions<T> = FactoryFn<T> | DisposableFactoryOptions<T>
 
 const USES = Symbol('USES')
 
@@ -64,6 +61,45 @@ const getDynamicUseModule = (): import('vuex').Module<
     },
 })
 
+const getNestedState = (parts: string[], rootState: any) => {
+    let result = rootState
+    parts.forEach(part => (result = result[part]))
+    return result
+}
+
+export const useDynamicModule = <T>(
+    namespace: string,
+    options: DisposableFactoryOptions<T>
+) => {
+    const delay =
+        typeof options.dispose === 'object' &&
+        typeof options?.dispose?.delay === 'number'
+            ? options.dispose.delay
+            : DELAY_DEFAULT
+    const factory = () =>
+        mergeModule(options.factory(namespace), getDynamicUseModule())
+
+    const getUses = () =>
+        getNestedState(namespace.split('/'), useStore().state)[USES] as number
+    const createIf = () => {
+        if (!isRegistered(namespace)) {
+            registerModule(namespace.split('/'), factory())
+        }
+
+        useStore().commit(`${namespace}/${INCREMENT}`)
+    }
+    const destroyIf = () => {
+        if (isRegistered(namespace) && getUses() <= 0) {
+            unregisterModule(namespace.split('/'))
+        }
+    }
+    createIf()
+    onUnmounted(() => {
+        useStore().commit(`${namespace}/${DECREMENT}`)
+        delay > 0 ? setTimeout(destroyIf, delay) : destroyIf()
+    })
+}
+
 /** Hook to access the given module.
  * If a namespace ref is supplied, the module will reactively change namespaces when the ref updates
  * A factory function to create a module can be supplied to dynamically register the module if it is requested before it is registerd
@@ -71,21 +107,20 @@ const getDynamicUseModule = (): import('vuex').Module<
 export const useModule = <T>(
     ctor: { new (...args: any[]): T },
     namespaceRef?: string | Ref<string | undefined>,
-    factory?: (namespace: string) => T
-): Ref<T> =>
-    computed(() => {
+    factory?: ModuleFactoryOptions<T>
+): Ref<T> => {
+    return computed(() => {
         const namespace = normalizeNamespace(namespaceRef)
-        if (
-            factory &&
-            namespace &&
-            namespaceRef !== undefined &&
-            'value' in (namespaceRef as any) &&
-            !isRegistered(namespace)
-        ) {
-            registerModule(namespace.split('/'), factory(namespace))
+        if (factory !== undefined && namespace && !isRegistered(namespace)) {
+            if (typeof factory === 'object') {
+                useDynamicModule(namespace, factory)
+            } else {
+                registerModule(namespace.split('/'), factory(namespace))
+            }
         }
         return getModule(ctor, namespace)
     })
+}
 
 const getGetKeys = (target: any) =>
     getStates(target).concat(getGetterKeys(target))
@@ -144,7 +179,7 @@ export type MappedModule<T> = {
 export const useMappedModule = <T extends Record<string, any>>(
     ctor: { new (...args: any[]): T },
     namespaceRef?: string | Ref<string | undefined>,
-    factory?: (namespace: string) => T
+    factory?: ModuleFactoryOptions<T>
 ): MappedModule<T> => {
     const result: Record<string, Function | Ref<any>> = {}
 

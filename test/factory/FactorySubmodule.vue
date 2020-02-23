@@ -4,23 +4,31 @@
     </div>
 </template>
 <script lang="ts">
-import { defineComponent, computed, ref } from '@vue/composition-api'
+import {
+    defineComponent,
+    computed,
+    ref,
+    onBeforeMount,
+    onUnmounted,
+} from '@vue/composition-api'
 import { useMappedModule } from '../../src'
-import { DynamicModule } from './dynamic.store'
+import { FactoryModule } from './factory.store'
 export default defineComponent({
     props: {
         namespace: {
             type: String,
             required: true,
         },
+        delay: Number,
     },
     setup: props => {
         const namespace = computed(() => props.namespace)
-        const mapped = useMappedModule(
-            DynamicModule,
-            namespace,
-            () => new DynamicModule()
-        )
+        const mapped = useMappedModule(FactoryModule, namespace, {
+            factory: () => new FactoryModule(),
+            dispose: {
+                delay: props.delay,
+            },
+        })
         return {
             ...mapped,
         }

@@ -6,9 +6,9 @@
 </template>
 <script lang="ts">
 import { Foo } from './modules.store'
-import { createComponent, computed } from '@vue/composition-api'
+import { defineComponent, computed } from '@vue/composition-api'
 import { useModule } from '../src/hook'
-export default createComponent({
+export default defineComponent({
     setup: () => {
         const m = useModule(Foo)
         return {

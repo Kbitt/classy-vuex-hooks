@@ -15,3 +15,7 @@ This function takes a module constructor and optionally a namespace (or ref to a
 ## useMappedModule
 
 This function can be used like the `mapComputed` and `mapMethods` functions of `classy-vuex`. Pass a module constructor and optionally a namespace, and the result can be mapped to the `setup` return object, allowing all of the modules states, getters, mutations and actions to be passed to setup for a component.
+
+## Dynamic Modules
+
+Both hooks can be used to dynamically register a module on demand. By supplying a factory function as a third argument, the module will be created if it does not already exist at the given namespace.

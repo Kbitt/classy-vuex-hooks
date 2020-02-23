@@ -9,14 +9,14 @@
         "es/*"
     ],
     "peerDependencies": {
-        "@vue/composition-api": "^0.3.4"
+        "@vue/composition-api": "^0.4.0"
     },
     "devDependencies": {
         "@babel/cli": "^7.8.4",
         "@babel/core": "^7.8.3",
         "@babel/preset-env": "^7.8.3",
         "@types/jest": "^24.9.0",
-        "@vue/composition-api": "^0.3.4",
+        "@vue/composition-api": "^0.4.0",
         "@vue/test-utils": "^1.0.0-beta.31",
         "babel-core": "7.0.0-bridge.0",
         "cross-env": "^6.0.3",

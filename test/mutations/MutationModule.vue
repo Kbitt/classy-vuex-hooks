@@ -26,14 +26,14 @@
     </div>
 </template>
 <script lang="ts">
-import { createComponent } from '@vue/composition-api'
+import { defineComponent } from '@vue/composition-api'
 import {
     ModuleTestMutations,
     MutationTestModule,
     ModuleTestState,
 } from './mutations.store'
 import { useMutations, useState } from '../../src'
-export default createComponent({
+export default defineComponent({
     setup: () => {
         const mutations = useMutations<ModuleTestMutations>(MutationTestModule)
         const states = useState<ModuleTestState>(MutationTestModule)

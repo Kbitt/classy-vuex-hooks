@@ -1,15 +1,25 @@
 <template>
     <div>
         <input id="namespace" v-model="namespace" />
-        <dynamic-submodule :namespace="namespace" :key="namespace" />
+        <factory-submodule
+            :namespace="namespace"
+            :key="namespace"
+            :delay="delay"
+        />
     </div>
 </template>
 <script lang="ts">
 import { defineComponent, computed, ref } from '@vue/composition-api'
-import DynamicSubmodule from './DynamicSubmodule.vue'
+import FactorySubmodule from './FactorySubmodule.vue'
 export default defineComponent({
     components: {
-        DynamicSubmodule,
+        FactorySubmodule,
+    },
+    props: {
+        delay: {
+            type: Number,
+            default: 0,
+        },
     },
     setup: () => {
         const namespace = ref('dyn0')

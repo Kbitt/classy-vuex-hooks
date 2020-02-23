@@ -22,9 +22,9 @@
 </template>
 <script lang="ts">
 import { Foo, SubModule } from './modules.store'
-import { createComponent, computed, Ref } from '@vue/composition-api'
+import { defineComponent, computed, Ref } from '@vue/composition-api'
 import { useMappedModule } from '../src/hook'
-export default createComponent({
+export default defineComponent({
     setup: () => {
         const m = useMappedModule(Foo)
         const ns = computed(() => {
