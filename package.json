@@ -1,6 +1,6 @@
 {
     "name": "classy-vuex-hooks",
-    "version": "1.4.0",
+    "version": "1.4.1",
     "main": "dist/index.js",
     "types": "es/index.d.ts",
     "license": "MIT",
@@ -34,6 +34,6 @@
         "test": "jest"
     },
     "dependencies": {
-        "classy-vuex": "^1.8.5"
+        "classy-vuex": "^1.8.6"
     }
 }
